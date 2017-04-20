@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,5 +64,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void enviar(View view) {
 
+    }
+
+    private BluetoothSocket criarSoqueteBluetooth(BluetoothDevice dispositivo) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method metodo;
+        BluetoothSocket tmpSoquete = null;
+
+        try{
+            metodo = dispositivo.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
+            tmpSoquete = (BluetoothSocket) metodo.invoke(dispositivo, 1);
+        }finally {
+            return tmpSoquete;
+        }
     }
 }
