@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -62,11 +63,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void enviar(View view) {
+    public void enviar(View view) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        for (BluetoothDevice item : dispositivosPareados){
+            if(spDispositivos.getSelectedItem().toString().equalsIgnoreCase(item.getName())){
+                try{
+                    BluetoothDevice dispositivoRemoto = bluetooth.getRemoteDevice(item.getAddress());
+                    soquete = criarSoqueteBluetooth(dispositivoRemoto);
+                    soquete.connect();
 
+                    bluetooth.cancelDiscovery();
+
+                    saida = soquete.getOutputStream();
+
+                    byte[] buffer = txtInformacao.toString().getBytes();
+                    saida.write(buffer);
+
+                    saida.close();
+                    soquete.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
-    private BluetoothSocket criarSoqueteBluetooth(BluetoothDevice dispositivo) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private BluetoothSocket criarSoqueteBluetooth(BluetoothDevice dispositivo) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method metodo;
         BluetoothSocket tmpSoquete = null;
 
